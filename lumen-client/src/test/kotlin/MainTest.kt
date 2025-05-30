@@ -1,5 +1,4 @@
-import kotlinx.coroutines.runBlocking
-import me.bottdev.lumenclient.lumenClient
+import me.bottdev.lumenclient.types.simpleLumenClient
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
@@ -8,7 +7,7 @@ class ClientTest {
     @Test
     fun `should connect the client`() {
 
-        val client = lumenClient {
+        val client = simpleLumenClient {
             id = "test"
             host = "localhost"
             port = 8081
@@ -18,9 +17,7 @@ class ClientTest {
             }
         }
 
-        runBlocking {
-            client.connect()
-        }
+        client.start()
 
         assertTrue { true }
 

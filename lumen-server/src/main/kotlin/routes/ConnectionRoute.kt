@@ -27,6 +27,12 @@ private suspend fun DefaultWebSocketServerSession.handleConnectionSocket() {
         return
     }
 
+    if (ClientService.contains(id)) {
+        logger.info("Client with id \"$id\" is already connected!")
+        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Client with id \"$id\" is already connected!"))
+        return
+    }
+
     val username = call.request.queryParameters["username"]
     if (username == null) {
         logger.info("Missing user's name")

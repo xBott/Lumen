@@ -9,13 +9,11 @@ interface IMessageIO {
     val wrapperHandler: WrapperHandler
     val messageQueue: MessageQueue
 
-    suspend fun receive()
-
     fun handleMessage(encodedWrappedMessage: String) {
-        val wrappedMessage = codec.decode(encodedWrappedMessage)
+        val wrappedMessage = codec.decodeWrapper(encodedWrappedMessage)
         messageQueue.add(wrappedMessage)
     }
 
-    suspend fun send(wrappedMessage: IMessageWrapper)
+    fun send(wrappedMessage: IMessageWrapper)
 
 }

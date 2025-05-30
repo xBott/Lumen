@@ -4,10 +4,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import me.bottdev.lumencore.messages.IAckable
+import me.bottdev.lumencore.messages.types.AckMessage
+import me.bottdev.lumencore.wrapper.IAckWrapper
 import me.bottdev.lumencore.wrapper.IMessageWrapper
 import me.bottdev.lumencore.wrapper.WrapperHandler
+import me.bottdev.lumencore.wrapper.types.DirectMessageWrapper
 
-class MessageQueue(private val wrapperHandler: WrapperHandler) {
+class MessageQueue(private val io: IMessageIO, private val wrapperHandler: WrapperHandler) {
 
     private var isHandling = false
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -24,16 +28,40 @@ class MessageQueue(private val wrapperHandler: WrapperHandler) {
 
         scope.launch {
             while (true) {
-                val wrapper = channel.tryReceive().getOrNull() ?: break
-                handleWrapper(wrapper)
+                val wrappedMessage = channel.tryReceive().getOrNull() ?: break
+                handleAck(wrappedMessage)
+                handleWrapper(wrappedMessage)
             }
             isHandling = false
         }
 
     }
 
-    private fun handleWrapper(wrapper: IMessageWrapper) {
-        wrapperHandler.handle(wrapper)
+    private fun handleWrapper(wrappedMessage: IMessageWrapper) {
+
+        wrapperHandler.handle(wrappedMessage)
+
+
+    }
+
+    private fun handleAck(wrappedMessage: IMessageWrapper) {
+
+        val payload = wrappedMessage.payload
+
+        if (payload is IAckable && wrappedMessage is IAckWrapper) {
+
+            val name = payload::class.java.simpleName
+            val to = wrappedMessage.ackTo
+            val from = wrappedMessage.ackFrom
+
+            if (from != null && to != null && to != from) {
+                val ackMessage = AckMessage(name, wrappedMessage.id)
+                val ackWrappedMessage = DirectMessageWrapper(from, to, ackMessage)
+                io.send(ackWrappedMessage)
+            }
+
+        }
+
     }
 
 }

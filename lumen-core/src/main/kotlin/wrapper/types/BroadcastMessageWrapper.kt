@@ -1,14 +1,13 @@
 package me.bottdev.lumencore.wrapper.types
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import me.bottdev.lumencore.messages.ILumenMessage
 import me.bottdev.lumencore.wrapper.IMessageWrapper
+import java.util.*
 
-@Serializable
-@SerialName("Broadcast")
 data class BroadcastMessageWrapper(
     val from: String,
     val self: Boolean = true,
-    override val payload: ILumenMessage
-) : IMessageWrapper
+    override var payload: ILumenMessage
+) : IMessageWrapper {
+    override val id: String = UUID.randomUUID().toString()
+}

@@ -1,15 +1,14 @@
 package me.bottdev.lumencore.wrapper.types
 
 import me.bottdev.lumencore.messages.ILumenMessage
-import me.bottdev.lumencore.wrapper.IAckWrapper
 import me.bottdev.lumencore.wrapper.IMessageWrapper
-import java.util.UUID
+import java.util.*
 
-data class ServerMessageWrapper(
-    val from: String,
+data class ChannelMessageWrapper(
+    val from: String?,
+    val channelId: String,
+    val self: Boolean = false,
     override var payload: ILumenMessage
-) : IMessageWrapper, IAckWrapper {
+) : IMessageWrapper {
     override val id: String = UUID.randomUUID().toString()
-    override val ackFrom: String = "SERVER"
-    override val ackTo: String = from
 }
