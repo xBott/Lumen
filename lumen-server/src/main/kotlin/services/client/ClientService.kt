@@ -2,7 +2,7 @@ package me.bottdev.lumenserver.services.client
 
 import kotlinx.coroutines.runBlocking
 import me.bottdev.lumencore.MessageCodec
-import me.bottdev.lumencore.MessageHandler
+import me.bottdev.lumencore.handlers.MessageHandler
 import me.bottdev.lumencore.messages.ILumenMessage
 import me.bottdev.lumencore.messages.types.channels.SubscribeChannelMessage
 import me.bottdev.lumencore.messages.types.channels.UnsubscribeChannelMessage
@@ -10,7 +10,7 @@ import me.bottdev.lumencore.messages.types.metadata.AddClientMetadataMessage
 import me.bottdev.lumencore.messages.types.handshake.HandshakeRequestMessage
 import me.bottdev.lumencore.messages.types.handshake.HandshakeResponseMessage
 import me.bottdev.lumencore.messages.types.metadata.RemoveClientMetadataMessage
-import me.bottdev.lumencore.wrapper.WrapperHandler
+import me.bottdev.lumencore.handlers.WrapperHandler
 import me.bottdev.lumencore.wrapper.types.BroadcastMessageWrapper
 import me.bottdev.lumencore.wrapper.types.ChannelMessageWrapper
 import me.bottdev.lumencore.wrapper.types.DirectMessageWrapper
@@ -73,6 +73,7 @@ object ClientService {
 
             logger.info("Routing broadcast message to all clients")
 
+            val id = wrapper.id
             val from = wrapper.from
             val self = wrapper.self
             val payload = wrapper.payload
@@ -80,7 +81,7 @@ object ClientService {
             getAll().forEach { client ->
                 if (from != client.id || self) {
                     logger.info(" > Message routed to ${client.id}")
-                    val directWrapper = DirectMessageWrapper(from, client.id, payload)
+                    val directWrapper = DirectMessageWrapper(from, client.id, payload, id)
                     client.send(directWrapper)
                 }
             }
@@ -100,6 +101,7 @@ object ClientService {
 
         register(ChannelMessageWrapper::class.java) { wrapper, _ ->
 
+            val id = wrapper.id
             val from = wrapper.from
             val channelId = wrapper.channelId
             val self = wrapper.self
@@ -110,7 +112,8 @@ object ClientService {
             getSubscribed(channelId).forEach { client ->
                 if (from != client.id || self) {
                     logger.info(" > Message routed to ${client.id}")
-                    val directWrapper = DirectMessageWrapper(from, client.id, payload)
+
+                    val directWrapper = DirectMessageWrapper(from, client.id, payload, id)
                     client.send(directWrapper)
                 }
             }

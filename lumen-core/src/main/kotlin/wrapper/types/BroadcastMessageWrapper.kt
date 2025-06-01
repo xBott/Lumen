@@ -7,7 +7,6 @@ import java.util.*
 data class BroadcastMessageWrapper(
     val from: String,
     val self: Boolean = true,
-    override var payload: ILumenMessage
-) : IMessageWrapper {
-    override val id: String = UUID.randomUUID().toString()
-}
+    override var payload: ILumenMessage,
+    override var id: String = UUID.randomUUID().toString()
+) : IMessageWrapper

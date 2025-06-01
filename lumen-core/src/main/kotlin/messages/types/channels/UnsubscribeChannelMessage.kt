@@ -5,4 +5,5 @@ import me.bottdev.lumencore.messages.ILumenMessage
 
 data class UnsubscribeChannelMessage(
     val channelId: String,
+    override val shouldAck: Boolean = false
 ) : ILumenMessage, IAckable

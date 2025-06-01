@@ -1,10 +1,16 @@
 import kotlinx.coroutines.runBlocking
 import me.bottdev.lumenclient.types.simpleLumenClient
+import me.bottdev.lumencore.messages.IAckable
 import me.bottdev.lumencore.messages.ILumenMessage
 import java.io.File
 import java.util.*
 
-class NewFileMessage(val directory: String = "", val name: String, val content: String) : ILumenMessage
+class NewFileMessage(
+    val directory: String = "",
+    val name: String,
+    val content: String,
+    override val shouldAck: Boolean = false
+) : ILumenMessage, IAckable
 
 fun main() = runBlocking {
 
@@ -38,12 +44,30 @@ fun main() = runBlocking {
     client.start()
     client.subscribe("files")
 
-    client.sendChannel(
-        NewFileMessage(
-            directory = "TestFiles",
-            name = "test_${UUID.randomUUID()}",
-            content = "test ".repeat(100)
-        ), "files", false)
+    val newFileMessage = NewFileMessage(
+        directory = "TestFiles",
+        name = "test_${UUID.randomUUID()}",
+        content = "test ".repeat(100),
+        shouldAck = true
+    )
+
+    client.sendChannel {
+        message = newFileMessage
+        channelId = "files"
+        self = false
+        timeOut = 5000
+        resendTimes = 3
+        onAckSuccess = { wrapper, _ ->
+            println("${wrapper.id} was successfully received")
+        }
+        onAckTimeout = { wrapper ->
+            println("${wrapper.id} was not received")
+        }
+        onAckResend = { wrapper, iteration ->
+            println("resending message ${wrapper.id} #$iteration")
+        }
+    }
 
 }
+
 

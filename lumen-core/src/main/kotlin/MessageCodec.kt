@@ -17,6 +17,7 @@ import me.bottdev.lumencore.messages.types.handshake.HandshakeResponseMessage
 import me.bottdev.lumencore.messages.types.metadata.AddClientMetadataMessage
 import me.bottdev.lumencore.messages.types.metadata.RemoveClientMetadataMessage
 import me.bottdev.lumencore.wrapper.IMessageWrapper
+import java.util.UUID
 
 class MessageCodec {
 
@@ -44,12 +45,13 @@ class MessageCodec {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ILumenMessage {
             val node = p.codec.readTree<ObjectNode>(p)
             val typeName = node.get("type")?.asText()
+            val shouldAck = node.get("should_ack")?.asBoolean() ?: false
 
             val clazz = typeMap[typeName]
             return if (clazz != null) {
                 p.codec.treeToValue(node, clazz)
             } else {
-                RoutedMessage(node.toString())
+                RoutedMessage(node.toString(), shouldAck)
             }
         }
 
@@ -62,13 +64,13 @@ class MessageCodec {
         override fun deserialize(p: JsonParser, ctxt: DeserializationContext): IMessageWrapper {
             val node = p.codec.readTree<ObjectNode>(p)
             val payloadNode = node.get("payload") as ObjectNode
-            val id = node.get("id").toString()
+            val id = node.get("id").asText()
 
             val payloadParser = payloadNode.traverse(p.codec)
             val payload = messageDeserializer.deserialize(payloadParser, ctxt)
 
             return object : IMessageWrapper {
-                override val id: String = id
+                override var id: String = id
                 override var payload: ILumenMessage = payload
             }
         }

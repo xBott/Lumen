@@ -21,7 +21,7 @@ import me.bottdev.lumencore.wrapper.types.ServerMessageWrapper
 )
 interface IMessageWrapper {
 
-    val id: String
+    var id: String
     var payload: ILumenMessage
 
 }

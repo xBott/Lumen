@@ -1,6 +1,6 @@
-package me.bottdev.lumencore.wrapper
+package me.bottdev.lumencore.handlers
 
-import me.bottdev.lumencore.MessageHandler
+import me.bottdev.lumencore.wrapper.IMessageWrapper
 
 fun interface WrapperHandlerBlock<T : IMessageWrapper> {
     fun handle(wrapper: T, handler: MessageHandler)

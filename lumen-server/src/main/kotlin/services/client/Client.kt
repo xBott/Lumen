@@ -7,11 +7,11 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.runBlocking
 import me.bottdev.lumencore.IMessageIO
 import me.bottdev.lumencore.MessageQueue
-import me.bottdev.lumencore.wrapper.IMessageWrapper
+import me.bottdev.lumencore.handlers.AckHandler
 import me.bottdev.lumenserver.models.User
 
 class Client(
-    val id: String,
+    override val id: String,
     val address: String,
     val user: User,
     private val session: WebSocketServerSession? = null
@@ -21,6 +21,7 @@ class Client(
     val channels = mutableSetOf<String>()
 
     override val codec = ClientService.codec
+    override val ackHandler = AckHandler()
     override val wrapperHandler = ClientService.wrapperHandler
     override val messageQueue = MessageQueue(this, wrapperHandler)
 
@@ -50,11 +51,10 @@ class Client(
         }
     }
 
-    override fun send(wrappedMessage: IMessageWrapper) {
+    override fun send(value: String) {
         session?.apply {
-            val encodedMessage = codec.encodeWrapper(wrappedMessage)
             runBlocking {
-                send(Frame.Text(encodedMessage))
+                send(Frame.Text(value))
             }
         }
     }

@@ -8,7 +8,7 @@ import me.bottdev.lumencore.messages.IAckable
 import me.bottdev.lumencore.messages.types.AckMessage
 import me.bottdev.lumencore.wrapper.IAckWrapper
 import me.bottdev.lumencore.wrapper.IMessageWrapper
-import me.bottdev.lumencore.wrapper.WrapperHandler
+import me.bottdev.lumencore.handlers.WrapperHandler
 import me.bottdev.lumencore.wrapper.types.DirectMessageWrapper
 
 class MessageQueue(private val io: IMessageIO, private val wrapperHandler: WrapperHandler) {
@@ -50,11 +50,14 @@ class MessageQueue(private val io: IMessageIO, private val wrapperHandler: Wrapp
 
         if (payload is IAckable && wrappedMessage is IAckWrapper) {
 
+            if (!payload.shouldAck) return
+
             val name = payload::class.java.simpleName
             val to = wrappedMessage.ackTo
             val from = wrappedMessage.ackFrom
 
             if (from != null && to != null && to != from) {
+
                 val ackMessage = AckMessage(name, wrappedMessage.id)
                 val ackWrappedMessage = DirectMessageWrapper(from, to, ackMessage)
                 io.send(ackWrappedMessage)

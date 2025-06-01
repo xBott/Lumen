@@ -8,7 +8,6 @@ data class ChannelMessageWrapper(
     val from: String?,
     val channelId: String,
     val self: Boolean = false,
-    override var payload: ILumenMessage
-) : IMessageWrapper {
-    override val id: String = UUID.randomUUID().toString()
-}
+    override var payload: ILumenMessage,
+    override var id: String = UUID.randomUUID().toString()
+) : IMessageWrapper

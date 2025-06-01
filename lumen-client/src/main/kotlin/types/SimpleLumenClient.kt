@@ -4,17 +4,19 @@ import me.bottdev.lumenclient.ILumenClient
 import me.bottdev.lumenclient.LumenCredentials
 import me.bottdev.lumenclient.Metadata
 import me.bottdev.lumencore.MessageCodec
-import me.bottdev.lumencore.MessageHandler
 import me.bottdev.lumencore.MessageQueue
-import me.bottdev.lumencore.messages.types.*
+import me.bottdev.lumencore.handlers.AckHandler
+import me.bottdev.lumencore.handlers.MessageHandler
+import me.bottdev.lumencore.handlers.WrapperHandler
+import me.bottdev.lumencore.messages.types.AckMessage
+import me.bottdev.lumencore.messages.types.RoutedMessage
+import me.bottdev.lumencore.messages.types.TextMessage
 import me.bottdev.lumencore.messages.types.channels.SubscribeChannelMessage
 import me.bottdev.lumencore.messages.types.channels.UnsubscribeChannelMessage
 import me.bottdev.lumencore.messages.types.handshake.HandshakeRequestMessage
 import me.bottdev.lumencore.messages.types.handshake.HandshakeResponseMessage
 import me.bottdev.lumencore.messages.types.metadata.AddClientMetadataMessage
 import me.bottdev.lumencore.messages.types.metadata.RemoveClientMetadataMessage
-import me.bottdev.lumencore.wrapper.IMessageWrapper
-import me.bottdev.lumencore.wrapper.WrapperHandler
 import me.bottdev.lumencore.wrapper.types.DirectMessageWrapper
 import okhttp3.*
 import okio.ByteString
@@ -33,6 +35,7 @@ class SimpleLumenClient(
     private val logger = LoggerFactory.getLogger("LumenClient-$id")
 
     override val codec = MessageCodec.default
+    override val ackHandler = AckHandler()
     private val messageHandler = MessageHandler().apply {
         register(HandshakeResponseMessage::class.java) { message, _ ->
             logger.info("[Handshake] Success!")
@@ -65,6 +68,7 @@ class SimpleLumenClient(
         }
         register(AckMessage::class.java) { message, from ->
             logger.info("[Ack] $from has received ${message.messageId} ${message.name}")
+            ackHandler.complete(message)
         }
     }
     override val wrapperHandler = WrapperHandler(messageHandler).apply {
@@ -103,7 +107,11 @@ class SimpleLumenClient(
                 override fun onOpen(webSocket: WebSocket, response: Response) {
                     running = true
                     logger.info("Connected to server!")
-                    sendServer(HandshakeRequestMessage())
+
+                    sendServer {
+                        message = HandshakeRequestMessage()
+                    }
+
                     latch.countDown()
                 }
 
@@ -147,10 +155,9 @@ class SimpleLumenClient(
 
     }
 
-    override fun send(wrappedMessage: IMessageWrapper) {
+    override fun send(value: String) {
         socket?.apply {
-            val encodedMessage = codec.encodeWrapper(wrappedMessage)
-            send(encodedMessage)
+            send(value)
         }
     }
 

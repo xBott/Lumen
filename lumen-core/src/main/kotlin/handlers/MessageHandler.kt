@@ -1,4 +1,4 @@
-package me.bottdev.lumencore
+package me.bottdev.lumencore.handlers
 
 import me.bottdev.lumencore.messages.ILumenMessage
 
