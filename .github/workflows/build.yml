@@ -4,7 +4,7 @@ name: Build App
 on:
   push:
     branches:
-      - workflows  # измени на нужную ветку
+      - workflow  # измени на нужную ветку
   pull_request:
   workflow_dispatch:
 
