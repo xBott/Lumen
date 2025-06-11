@@ -32,7 +32,7 @@ class SimpleLumenClient(
     override val credentials: LumenCredentials
 ) : ILumenClient {
 
-    private val logger = LoggerFactory.getLogger("LumenClient-$id")
+    val logger = LoggerFactory.getLogger("LumenClient-$id")
 
     override val codec = MessageCodec.default
     override val ackHandler = AckHandler()

@@ -32,7 +32,7 @@ fun main() = runBlocking {
 
         val file = directory.resolve("${message.name}.txt")
         if (file.exists()) {
-            println("[File] file ${message.name}.txt already exists!")
+            client.logger.info("[File] file ${message.name}.txt already exists!")
             return@registerMessage
         }
 
@@ -58,13 +58,13 @@ fun main() = runBlocking {
         timeOut = 5000
         resendTimes = 3
         onAckSuccess = { wrapper, _ ->
-            println("${wrapper.id} was successfully received")
+            client.logger.info("${wrapper.id} was successfully received")
         }
         onAckTimeout = { wrapper ->
-            println("${wrapper.id} was not received")
+            client.logger.info("${wrapper.id} was not received")
         }
         onAckResend = { wrapper, iteration ->
-            println("resending message ${wrapper.id} #$iteration")
+            client.logger.info("resending message ${wrapper.id} #$iteration")
         }
     }
 

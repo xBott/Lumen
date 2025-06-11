@@ -32,6 +32,10 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "bottdev.me.ApplicationKt"
+        attributes["Main-Class"] = "me.bottdev.lumenserver.ApplicationKt"
     }
+}
+
+application {
+    mainClass.set("me.bottdev.lumenserver.ApplicationKt")
 }

@@ -1,9 +1,10 @@
 plugins {
     kotlin("jvm") version "1.9.22"
+    id("maven-publish")
 }
 
 group = "me.bottdev"
-version = "1.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -19,9 +20,46 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
     implementation("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.0")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+
+
+configure<PublishingExtension> {
+    publications.create<MavenPublication>("lumen-client") {
+        groupId = "me.bottdev"
+        artifactId = "lumen-client"
+        version = "${project.version}"
+        pom.packaging = "jar"
+        artifact("$buildDir/libs/lumen-client-${version}.jar")
+
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "LumenClient"
+            url = uri("http://mc.the-light.online:9000/private")
+            isAllowInsecureProtocol  = true
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "me.bottdev"
+            artifactId = "lumen-client"
+            version = "${project.version}"
+            from(components["java"])
+        }
+    }
+}
+
