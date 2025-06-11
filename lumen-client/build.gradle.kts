@@ -47,7 +47,10 @@ publishing {
             name = "LumenClient"
             url = uri("http://mc.the-light.online:9000/private")
             isAllowInsecureProtocol  = true
-            credentials(PasswordCredentials::class)
+            credentials(PasswordCredentials::class) {
+                username = System.getenv("LumenClientUsername")
+                password = System.getenv("LumenClientPassword")
+            }
             authentication {
                 create<BasicAuthentication>("basic")
             }

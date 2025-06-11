@@ -23,8 +23,6 @@ tasks.test {
 }
 
 
-
-
 configure<PublishingExtension> {
     publications.create<MavenPublication>("lumen-core") {
         groupId = "me.bottdev"
@@ -45,7 +43,10 @@ publishing {
             name = "LumenCore"
             url = uri("http://mc.the-light.online:9000/private")
             isAllowInsecureProtocol  = true
-            credentials(PasswordCredentials::class)
+            credentials(PasswordCredentials::class) {
+                username = System.getenv("LumenCoreUsername")
+                password = System.getenv("LumenCorePassword")
+            }
             authentication {
                 create<BasicAuthentication>("basic")
             }
