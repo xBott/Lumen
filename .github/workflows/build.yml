@@ -28,8 +28,20 @@ jobs:
       - name: 🧱 Собрать проект
         run: ./gradlew build
 
-      - name: 📦 Сохранить jar файл как артефакт
+      - name: 📦 Сохранить lumen-core jar файл как артефакт
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: build/libs/*.jar
+          path: lumen-core/build/libs/*.jar
+          
+      - name: 📦 Сохранить lumen-server jar файл как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: lumen-server/build/libs/*.jar
+          
+      - name: 📦 Сохранить lumen-client jar файл как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: lumen-client/build/libs/*.jar
